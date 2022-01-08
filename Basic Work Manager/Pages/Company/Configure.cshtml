@@ -1,0 +1,317 @@
+﻿@page
+@using BasicWorkManager.Models
+@model BasicWorkManager.Pages.Company.ConfigureModel
+@{
+    ViewData["Title"] = "Configure your Company";
+}
+
+<div class="container bg-light p-4 rounded shadow-lg my-5" style="max-width: 1000px;">
+    <div>
+        <div class="input-group justify-content-center">
+            @*<span class="invisible input-group-text" style="background: transparent; border: none;"><i class="bi bi-pencil"></i></span>*@
+            <h2>@Model.Company.Name</h2>
+            @*<span class="input-group-text" style="background: transparent; border: none;"><i class="bi bi-pencil"></i></span>*@
+        </div>
+        <div class="input-group justify-content-center">
+            @*<form>*@
+                <p>
+                @Model.Company.Description
+                @*<button><i class="bi bi-pencil"></i></button>*@
+                </p>
+            @*</form>*@
+        </div>
+        <hr />
+    </div>
+    <div>
+        <h3 class="text-center mb-3">@Model.localizer.GetString("Employees", Model)</h3>
+        <div class="list-group configureList">
+            @{foreach(var user in Model.Company.Users)
+            {
+
+                <div class="list-group-item">
+                    <div class="d-flex flex-row justify-content-end">
+                        <h5 class="me-auto">@user.FirstName @user.LastName</h5>
+                        @if (user.UserRole == BasicWorkManager.Models.UserRole.Boss)
+                        {
+                            <button class="btn btn-sm btn-warning disabled">@Model.localizer.GetString("NewBoss", Model)</button>
+
+                        }
+                        else if (user.UserRole == BasicWorkManager.Models.UserRole.Regular)
+                        {
+                            <form asp-page-handler="ChangeRole" method="post">
+                                <button class="btn btn-sm btn-success me-2" type="submit">@Model.localizer.GetString("MakeSupervisor", Model)</button>
+                                <input type="hidden" name="_username" value="@user.Username" />
+                                <input type="hidden" name="_userRole" value="@BasicWorkManager.Models.UserRole.Supervisor" />
+                            </form>
+                            <form asp-page-handler="RemoveEmployee" method="post">
+                                <button class="btn btn-sm btn-danger">@Model.localizer.GetString("RemoveEmployee", Model)</button>
+                                <input type="hidden" name="_username" value="@user.Username" />
+                            </form>
+                        }
+                        else if (user.UserRole == BasicWorkManager.Models.UserRole.Supervisor)
+                        {
+                            <form asp-page-handler="ChangeRole" method="post">
+                                <button class="btn btn-sm btn-warning me-2" type="submit">@Model.localizer.GetString("DismissSupervisor", Model)</button>
+                                <input type="hidden" name="_username" value="@user.Username" />
+                                <input type="hidden" name="_userRole" value="@BasicWorkManager.Models.UserRole.Regular" />
+                            </form>
+                            <form asp-page-handler="RemoveEmployee" method="post">
+                                <button class="btn btn-sm btn-danger">@Model.localizer.GetString("RemoveEmployee", Model)</button>
+                                <input type="hidden" name="_username" value="@user.Username" />
+                            </form>
+                        }
+                    </div>
+                </div>
+            }}
+        </div>
+        <div class="mx-auto mt-3">
+            <div class="d-flex flex-row">
+                <button class="btn btn-primary me-2" data-bs-target="#addEmployeeModal" data-bs-toggle="modal">@Model.localizer.GetString("InviteEmployee", Model)</button>
+                <a class="btn btn-info" asp-page="/Company/Employees">@Model.localizer.GetString("EmployeesPage", Model)</a>
+            </div>
+        </div>
+        <hr />
+    </div>
+    <div>
+        <h3 class="text-center mb-3">@Model.localizer.GetString("Addresses", Model)</h3>
+        <div class="list-group configureList">
+            @foreach(var address in Model.Company.Addresses)
+            {
+                <div class="list-group-item">
+                    <div class="d-flex flex-row justify-content-end">
+                        <h5 class="me-auto">@address.WriteFullAddress()</h5>
+                        <form asp-page-handler="RemoveAddress" method="post">
+                            <button class="btn btn-sm btn-danger">@Model.localizer.GetString("RemoveAddress", Model)</button>
+                            <input type="hidden" name="_city" value="@address.City" />
+                            <input type="hidden" name="_street" value="@address.Street" />
+                            <input type="hidden" name="_houseNumber" value="@address.HouseNumber" />
+                        </form>
+                    </div>
+                </div>
+            }
+        </div>
+        <div class="mx-auto mt-3">
+            <div class="d-flex flex-row">
+                <button class="btn btn-primary" data-bs-target="#addAddressModal" data-bs-toggle="modal">@Model.localizer.GetString("AddAddress", Model)</button>
+            </div>
+        </div>
+        <hr />
+    </div>
+    <div>
+        <h3 class="text-center mb-3">@Model.localizer.GetString("Tasks", Model)</h3>
+        <div class="configureDiv">
+            <div class="d-flex flex-row justify-content-between align-content-center mb-3">
+                <h5 class="my-auto">@Model.localizer.GetString("TaskFrequency", Model)</h5>
+                <div class="dropdown">
+                    <button class="btn btn-success dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        @{
+                            switch (Model.Company.TaskFrequency)
+                            {
+                                case TaskFrequency.Whenever: <text>@Model.localizer.GetString("Whenever", Model)</text>; break;
+                                case TaskFrequency.Daily: <text>@Model.localizer.GetString("Daily", Model)</text>; break;
+                                case TaskFrequency.WorkDays: <text>@Model.localizer.GetString("WorkDays", Model)</text>; break;
+                                case TaskFrequency.Weekly: <text>@Model.localizer.GetString("Weekly", Model)</text>; break;
+                                case TaskFrequency.BiWeekly: <text>@Model.localizer.GetString("BiWeekly", Model)</text>; break;
+                                case TaskFrequency.Monthly: <text>@Model.localizer.GetString("Monthly", Model)</text>; break;
+                            }
+                        }
+                    </button>
+                    <ul class="dropdown-menu">
+                        @if (Model.Company.TaskFrequency != TaskFrequency.Whenever)
+                        {
+                            <li>
+                                <form asp-page-handler="ChangeTaskFrequency" method="post">
+                                    <button class="dropdown-item" type="submit">@Model.localizer.GetString("Whenever", Model)</button>
+                                    <input type="hidden" name="_taskFrequency" value="@TaskFrequency.Whenever" />
+                                </form>
+                            </li>
+                        }
+                        @if (Model.Company.TaskFrequency != TaskFrequency.Daily)
+                        {
+                            <li>
+                                <form asp-page-handler="ChangeTaskFrequency" method="post">
+                                    <button class="dropdown-item" type="submit">@Model.localizer.GetString("Daily", Model)</button>
+                                    <input type="hidden" name="_taskFrequency" value="@TaskFrequency.Daily" />
+                                </form>
+                            </li>
+                        }
+                        @if (Model.Company.TaskFrequency != TaskFrequency.WorkDays)
+                        {
+                            <li>
+                                <form asp-page-handler="ChangeTaskFrequency" method="post">
+                                    <button class="dropdown-item" type="submit">@Model.localizer.GetString("WorkDays", Model)</button>
+                                    <input type="hidden" name="_taskFrequency" value="@TaskFrequency.WorkDays" />
+                                </form>
+                            </li>
+                        }
+                        @if (Model.Company.TaskFrequency != TaskFrequency.Weekly)
+                        {
+                            <li>
+                                <form asp-page-handler="ChangeTaskFrequency" method="post">
+                                    <button class="dropdown-item" type="submit">@Model.localizer.GetString("Weekly", Model)</button>
+                                    <input type="hidden" name="_taskFrequency" value="@TaskFrequency.Weekly" />
+                                </form>
+                            </li>
+                        }
+                        @if (Model.Company.TaskFrequency != TaskFrequency.BiWeekly)
+                        {
+                            <li>
+                                <form asp-page-handler="ChangeTaskFrequency" method="post">
+                                    <button class="dropdown-item" type="submit">@Model.localizer.GetString("BiWeekly", Model)</button>
+                                    <input type="hidden" name="_taskFrequency" value="@TaskFrequency.BiWeekly" />
+                                </form>
+                            </li>
+                        }
+                        @if (Model.Company.TaskFrequency != TaskFrequency.Monthly)
+                        {
+                            <li>
+                                <form asp-page-handler="ChangeTaskFrequency" method="post">
+                                    <button class="dropdown-item" type="submit">@Model.localizer.GetString("Monthly", Model)</button>
+                                    <input type="hidden" name="_taskFrequency" value="@TaskFrequency.Monthly" />
+                                </form>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="list-group configureList">
+            @foreach(var task in Model.Company.Tasks)
+            {
+                <div class="list-group-item">
+                    <div class="d-flex flex-row justify-content-end">
+                        <h5 class="me-auto">[@task.Order] @task.Name "@task.Description" {@task.ValueType}</h5>
+                        <form asp-page-handler="RemoveTask" method="post">
+                            <button class="btn btn-sm btn-danger">@Model.localizer.GetString("RemoveTask", Model)</button>
+                            <input type="hidden" name="_taskName" value="@task.Name" />
+                        </form>
+                    </div>
+                </div>
+            }
+        </div>
+        <div class="mx-auto mt-3">
+            <div class="d-flex flex-row">
+                <button class="btn btn-primary" data-bs-target="#addTaskModal" data-bs-toggle="modal">@Model.localizer.GetString("AddTask", Model)</button>
+            </div>
+        </div>
+        <hr />
+    </div>
+    <div class="configureList" style="max-height: none">
+        @*<h3 class="text-center mb-3">Miscellaneous</h3>*@
+        <button class="btn btn-danger ms-auto d-block" data-bs-target="#deleteCompanyModal" data-bs-toggle="modal">@Model.localizer.GetString("DeleteCompany", Model)</button>
+    </div>
+</div>
+
+<div id="addEmployeeModal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 550px">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">@Model.localizer.GetString("InviteEmployee", Model)</h2>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-page-handler="InviteEmployee" method="post">
+                <div class="modal-body">
+                    <label class="form-label">@Html.Raw(Model.localizer.GetString("AddEmployeeMessage", Model))</label>
+                    <input class="form-control" type="email" placeholder="@Model.localizer.GetString("EmailAddress", Model)" asp-for="EmailAddress" required>
+                </div>
+                <div class="modal-footer justify-content-start">
+                    <button class="btn btn-primary" type="submit">@Model.localizer.GetString("Submit", Model)</button>
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">@Model.localizer.GetString("Back", Model)</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="addAddressModal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">@Model.localizer.GetString("AddAddress", Model)</h2>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-page-handler="CreateAddress" method="post">
+                <div class="modal-body">
+                    <input name="_country" class="form-control mb-3" placeholder="@Model.localizer.GetString("Country", Model)" type="text">
+                    <div class="row g-3 mb-3">
+                        <div class="col-sm-7">
+                            <input name="_city" class="form-control" placeholder="@Model.localizer.GetString("City", Model)" type="text" required>
+                        </div>
+                        <div class="col-sm">
+                            <input name="_postalCode" class="form-control" placeholder="@Model.localizer.GetString("PostalCode", Model)" type="text">
+                        </div>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-sm-8">
+                            <input name="_street" class="form-control" placeholder="@Model.localizer.GetString("Street", Model)" type="text" required>
+                        </div>
+                        <div class="col-sm">
+                            <input name="_houseNumber" class="form-control" placeholder="@Model.localizer.GetString("HouseNumber", Model)" type="text" required>
+                        </div>
+                    </div>
+                
+                </div>
+                <div class="modal-footer justify-content-start">
+                    <button class="btn btn-primary">@Model.localizer.GetString("Submit", Model)</button>
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">@Model.localizer.GetString("Back", Model)</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="addTaskModal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">@Model.localizer.GetString("AddTask", Model)</h2>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-page-handler="CreateTask" method="post">
+                <div class="modal-body">
+                    <input name="_taskName" class="form-control mb-3" placeholder="@Model.localizer.GetString("TaskName", Model)" type="text" required>
+                    <textarea name="_taskDescription" class="form-control mb-3" placeholder="@Model.localizer.GetString("TaskDescription", Model)" type="text"></textarea>
+                    <div class="row g-3">
+                        <div class="col-sm-4">
+                            <input name="_order" class="form-control" placeholder="@Model.localizer.GetString("TaskOrder", Model)" type="number">
+                        </div>
+                        <div class="col-sm">
+                            <label>@Model.localizer.GetString("TaskType", Model)</label>
+                            <div class="btn-group ms-2" role="group">
+                                <input name="_valueType" value="0" id="radio4CreateTask0" class="btn-check" type="radio" autocomplete="off" required>
+                                <label class="btn btn-outline-primary" for="radio4CreateTask0">@Model.localizer.GetString("TaskNumber", Model)</label>
+
+                                <input name="_valueType" value="1" id="radio4CreateTask1" class="btn-check" type="radio" autocomplete="off" required>
+                                <label class="btn btn-outline-primary" for="radio4CreateTask1">@Model.localizer.GetString("TaskText", Model)</label>
+                            </div>
+                        </div>
+                    </div>                
+                </div>
+                <div class="modal-footer justify-content-start">
+                    <button class="btn btn-primary">@Model.localizer.GetString("Submit", Model)</button>
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">@Model.localizer.GetString("Back", Model)</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="deleteCompanyModal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">@Model.localizer.GetString("DeleteYourCompany", Model)</h2>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>
+                    @Model.localizer.GetString("DelCompanyConf", Model)
+                </p>
+            </div>
+            <div class="modal-footer justify-content-start">
+                <form method="post" asp-page-handler="DeleteCompany"><button class="btn btn-primary" type="submit">@Model.localizer.GetString("Yes", Model)</button></form>
+                <button class="btn btn-secondary" data-bs-dismiss="modal">@Model.localizer.GetString("No", Model)</button>
+            </div>
+        </div>
+    </div>
+</div>

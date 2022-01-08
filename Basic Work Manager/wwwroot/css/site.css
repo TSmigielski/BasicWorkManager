@@ -1,0 +1,156 @@
+html {
+  font-size: 16px;
+}
+
+/*@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}*/
+
+@media only screen and (max-width: 600px) {
+    main {
+        visibility: hidden !important;
+    }
+
+    #smallScreen {
+        visibility: visible !important;
+    }
+}
+
+@media only screen and (min-width: 600px) {
+    main {
+        visibility: visible !important;
+    }
+
+    #smallScreen {
+        visibility: hidden !important;
+    }
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+.background {
+    background-image: url("../images/creepy_blue_background.png");
+    background-size: cover;
+    background-position: center;
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    z-index: -100;
+}
+
+.navBorderBot {
+    border-bottom: solid #6c757d 1px;
+}
+
+.navBorderTop {
+    border-top: solid #6c757d 1px;
+}
+
+nav {
+    position: fixed;
+    height: 100vh;
+    left: 0;
+    top: 0;
+}
+
+nav i {
+    font-size: 1.5em
+}
+
+nav button {
+    background-color: #212529!important;
+    transition: .6s!important;
+}
+
+nav button i {
+    color: #F8F9FA !important;
+    transition: .6s !important;
+}
+
+nav button:hover {
+    background-color: #F8F9FA !important;
+}
+
+nav button:hover i {
+    color: #212529 !important;
+}
+
+.navSelected {
+    background-color: #6c757d !important;
+}
+
+.navSelected:hover {
+    background-color: #F8F9FA !important;
+}
+
+.navSelected:hover i {
+    background-color: #F8F9FA !important;
+}
+
+.langaugeFlagContainer {
+    margin: 0;
+    padding: 0;
+}
+
+.langaugeFlagContainer:hover .langaugeFlag {
+    filter: brightness(75%);
+}
+
+.langaugeFlag {
+    height: 100px;
+    transition: 300ms;
+    background-color: lightgray;
+    padding: 1px;
+    margin: 5px 0
+}
+
+.errorText {
+    font-size: .875em;
+    color: #dc3545;
+}
+
+.popover {
+    max-width: 100%;
+}
+
+.configureDiv {
+    margin: auto;
+}
+
+.configureList {
+    max-height: 300px;
+    overflow-y: auto;
+    margin: auto;
+}
+
+td input {
+    width: 80px;
+}
+
+.myCalendar {
+    table-layout: fixed;
+}
+
+.myCalendar > thead th:not(:first-child) {
+    height: 20px;
+    text-align: center;
+}
+
+.myCalendar > thead th:is(:first-child) {
+    height: 20px;
+    width: 57px;
+    text-align: center;
+}
+
+.myCalendar > tbody td:nth-last-child(-n+2) {
+    background-color: #ecd9ad;
+}
+
+.myCalendarWrongMonth {
+    background-color: lightgray !important;
+}

@@ -1,0 +1,97 @@
+﻿@page
+@using System.Globalization
+@using BasicWorkManager.Services
+@model BasicWorkManager.Pages.CalendarModel
+@{
+	ViewData["Title"] = "Calendar";
+}
+
+<div class="container bg-light p-4 rounded shadow-lg my-5">
+	<h2 class="text-center mb-1">@Model.localizer.GetString("Title", Model)</h2>
+
+	<div class="d-flex flex-row justify-content-start mb-2">
+		<form method="post">
+			<button class="bg-transparent border-0 m-0 px-0 pt-1" type="submit"><i class="bi bi-caret-left-square"></i></button>
+			<input type="hidden" name="_dateString" value='@HttpContext.Request.Query["date"]' />
+			<input type="hidden" name="_months" value="-1" />
+		</form>
+		<h5 class="mx-1 my-auto text-center">@Model.GetMonthName()</h5>
+		<form method="post">
+			<button class="bg-transparent border-0 m-0 px-0 pt-1" type="submit"><i class="bi bi-caret-right-square"></i></button>
+			<input type="hidden" name="_dateString" value='@HttpContext.Request.Query["date"]' />
+			<input type="hidden" name="_months" value="1" />
+		</form>
+
+		@if(DateOnly.Parse(Model.DateString).Month != DateTime.Now.Month)
+		{
+			<a class="btn btn-link btn-sm" asp-page="/Calendar" asp-route-date="@DateOnly.FromDateTime(DateTime.Now).ToString()">@Model.localizer.GetString("CurrentMonth", Model)</a>
+		}
+
+		<h5 class="ms-auto my-auto text-center">
+			@(DateOnly.Parse(Model.DateString).Month.ToString().Length < 2 ? "0" + DateOnly.Parse(Model.DateString).Month.ToString() : DateOnly.Parse(Model.DateString).Month)
+			/
+			@DateOnly.Parse(Model.DateString).Year
+		</h5>
+	</div>
+	
+	<table class="myCalendar table table-bordered border-dark m-0">
+		<thead>
+			<tr>
+				<th scope="col">@Model.localizer.GetString("Week", Model)</th>
+				<th scope="col">@Model.localizer.GetString("Monday", Model)</th>
+				<th scope="col">@Model.localizer.GetString("Tuesday", Model)</th>
+				<th scope="col">@Model.localizer.GetString("Wednesday", Model)</th>
+				<th scope="col">@Model.localizer.GetString("Thursday", Model)</th>
+				<th scope="col">@Model.localizer.GetString("Friday", Model)</th>
+				<th scope="col">@Model.localizer.GetString("Saturday", Model)</th>
+				<th scope="col">@Model.localizer.GetString("Sunday", Model)</th>
+			</tr>
+		</thead>
+
+		<tbody>
+			@for (int week = Model.GetFirstWeek(); week <= Model.GetLastWeek(); week++)
+			{
+				<tr>
+					<th scope="row">
+						@(week == 0 ? ISOWeek.GetWeekOfYear(DateTimeExtensions.FirstDayOfMonth(DateTime.Parse(@Model.DateString))) : week)
+						@*<a class="btn btn-primary p-0 px-2" style=" max-width: 100px" asp-page="/Company/Employees" asp-route-week="@week" asp-route-year="@DateTime.Parse(Model.DateString).Year">View Employees</a>*@
+					</th>
+					@for (DateTime date = DateTimeExtensions.FirstDayOfWeek(DateTime.Parse(Model.DateString).Year, week); date <= DateTimeExtensions.FirstDayOfWeek(DateTime.Parse(Model.DateString).Year, week).AddDays(6); date = date.AddDays(1))
+					{
+						@if (date.Month == DateTime.Parse(Model.DateString).Month)
+						{
+							<td class="container">
+								<div class="mx-1 mb-1">
+									<div class="row mb-1">
+										<div class="col">@date.Day</div>
+										@if (await Model.CheckDate(DateOnly.FromDateTime(date)))
+										{
+											<div class="col text-end text-success"><i class="bi bi-check-circle-fill"></i></div>
+										}
+									</div>
+									<div class="text-center">
+										<a class="btn btn-primary p-0 px-2" style=" max-width: 100px" asp-page="/Tasks" asp-route-date="@DateOnly.FromDateTime(date)">@Model.localizer.GetString("ViewTasks", Model)</a>
+									</div>
+								</div>
+							</td>
+						}
+						else
+						{
+							<td class="container myCalendarWrongMonth">
+								<div class="mx-1 mb-1">
+									<div class="row mb-1">
+										<div class="col">@date.Day</div>
+										@if (await Model.CheckDate(DateOnly.FromDateTime(date)))
+										{
+											<div class="col text-end text-success"><i class="bi bi-check-circle-fill"></i></div>
+										}
+									</div>
+								</div>
+							</td>
+						}
+					}
+				</tr>
+			}
+		</tbody>
+	</table>
+</div>

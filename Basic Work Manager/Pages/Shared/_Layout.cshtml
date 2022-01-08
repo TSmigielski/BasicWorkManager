@@ -1,0 +1,205 @@
+﻿@using BasicWorkManager.Models
+@using System.Security.Claims
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Basic Work Manager</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.1/font/bootstrap-icons.css" />
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+
+<body>
+    <div class="background"></div>
+
+    <main role="main" class="d-flex justify-content-between align-items-center">
+        @if (User.Identity.IsAuthenticated)
+        {
+            <nav class="bg-secondary d-flex flex-column">
+                @if (User.HasClaim("HasCompany", "true"))
+                {
+                    <form class="navBorderBot" asp-page="/Tasks" method="get">
+                        @if (Context.Request.Path == "/Tasks")
+                        {
+                            <button class="btn rounded-0 border-0 navSelected" title="Tasks" type="submit" data-bs-toggle="tooltip" data-bs-placement="right" >
+                            <i class="bi bi-clipboard-check navSelected"></i>
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="btn rounded-0 border-0" title="Tasks" type="submit" data-bs-toggle="tooltip" data-bs-placement="right" >
+                            <i class="bi bi-clipboard-check"></i>
+                            </button>
+                        }
+                    </form>
+                    <form class="navBorderBot" asp-page="/Calendar" method="get">
+                        @if (Context.Request.Path == "/Calendar")
+                        {
+                            <button class="btn rounded-0 border-0 navSelected" title="Calendar" type="submit" data-bs-toggle="tooltip" data-bs-placement="right" >
+                            <i class="bi bi-calendar-week navSelected"></i>
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="btn rounded-0 border-0" title="Calendar" type="submit" data-bs-toggle="tooltip" data-bs-placement="right" >
+                            <i class="bi bi-calendar-week"></i>
+                            </button>
+                        }
+                    </form>
+                    @if (User.HasClaim(ClaimTypes.Role, ((int)UserRole.Supervisor).ToString()) || User.HasClaim(ClaimTypes.Role, ((int)UserRole.Boss).ToString()))
+                    {
+                       <form class="navBorderBot" asp-page="/Company/Employees" method="get">
+                        @if (Context.Request.Path == "/Company/Employees")
+                        {
+                            <button class="btn rounded-0 border-0 navSelected" title="Employees" type="submit" data-bs-toggle="tooltip" data-bs-placement="right" >
+                                <i class="bi bi-people navSelected"></i>
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="btn rounded-0 border-0" title="Employees" type="submit" data-bs-toggle="tooltip" data-bs-placement="right" >
+                                <i class="bi bi-people"></i>
+                            </button>
+                        }
+                        </form> 
+                    }
+                    @*<form class="navBorderBot" asp-page="/Archive" method="get">
+                        @if (Context.Request.Path == "/Archive")
+                        {
+                            <button class="btn rounded-0 border-0 navSelected" title="Archive" type="submit" data-bs-toggle="tooltip" data-bs-placement="right" >
+                            <i class="bi bi-archive navSelected"></i>
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="btn rounded-0 border-0" title="Archive" type="submit" data-bs-toggle="tooltip" data-bs-placement="right" >
+                                <i class="bi bi-archive"></i>
+                            </button>
+                        }
+                    </form>*@
+                    @if (User.HasClaim(ClaimTypes.Role, ((int)UserRole.Boss).ToString()))
+                    {
+                        <form class="navBorderBot" asp-page="/Company/Configure" method="get">
+                            @if (Context.Request.Path == "/Company/Configure")
+                            {
+                                <button class="btn rounded-0 border-0 navSelected" title="Configure Company" type="submit" data-bs-toggle="tooltip" data-bs-placement="right" >
+                                    <i class="bi bi-gear-wide-connected navSelected"></i>
+                                </button>
+                            }
+                            else
+                            {
+                                <button class="btn rounded-0 border-0" title="Configure Company" type="submit" data-bs-toggle="tooltip" data-bs-placement="right" >
+                                    <i class="bi bi-gear-wide-connected"></i>
+                            </button>
+                            }
+                        </form>
+                    }
+                }
+                <form class="navBorderBot">
+                    <button class="btn rounded-0 border-0"- style="cursor: default;" title="If you have any issues with something, have an question or want to give us feedback, you can send us an email at: info@@basicworkmanager.com We will respond to you within 48 hours." data-bs-toggle="tooltip" data-bs-placement="right" >
+                        <i class="bi bi-info-circle"></i>
+                    </button>
+                </form>
+
+                @*<form class="mt-auto" asp-page="/Account/Settings" method="get">
+                    @if (Context.Request.Path == "/Account/Settings")
+                    {
+                        <button class="btn rounded-0 border-0 navSelected" style="border-top: solid 1px #212529 !important" title="Account Setting" type="submit" data-bs-toggle="tooltip" data-bs-placement="right" >
+                        <i class="bi bi-gear navSelected"></i>
+                        </button>
+                    }
+                    else
+                    {
+                        <button class="btn rounded-0 border-0" title="Account Setting" type="submit" data-bs-toggle="tooltip" data-bs-placement="right" >
+                            <i class="bi bi-gear"></i>
+                        </button>
+                    }
+                </form>*@
+                <form class="mt-auto navBorderTop" style="margin: 0">
+                    <span title="Change Language" data-bs-toggle="tooltip" data-bs-placement="right">
+                        <button class="btn rounded-0 border-0" type="button" data-bs-toggle="modal" data-bs-target="#changeLanguageModal">
+                            <i class="bi bi-translate"></i>
+                        </button>
+                    </span>
+                </form>
+                <form class="navBorderTop" asp-page="/Account/LogOut" method="post">
+                    <button class="btn rounded-0 border-0" title="Log Out" type="submit" data-bs-toggle="tooltip" data-bs-placement="right" >
+                        <i class="bi bi-box-arrow-left"></i>
+                    </button>
+                </form>
+            </nav>
+            <div class="invisible vh-100" style="width: 48px;"></div>
+            <div class="container">
+                @RenderBody()
+            </div>
+            <div></div>
+        }
+        else
+        {
+            <nav>
+                <form class="position-absolute bottom-0 start-0">
+                    <span title="Change Language" data-bs-toggle="tooltip" data-bs-placement="right">
+                        <button class="btn rounded-0 border-0" type="button" data-bs-toggle="modal" data-bs-target="#changeLanguageModal">
+                            <i class="bi bi-translate"></i>
+                        </button>
+                    </span>
+                </form>
+            </nav>
+            <div class="container position-absolute translate-middle top-50 start-50">
+                @RenderBody()
+            </div>
+        }
+    </main>
+
+    <div id="smallScreen" class="container bg-light p-4 shadow-lg position-absolute top-50 start-50 translate-middle">
+        <h2 class="text-center m-4">Unfortunately your device doesn't support this website yet. We are working on this right now though!</h2>
+    </div>
+
+    <div class="modal fade" id="changeLanguageModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Select your language</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex flex-row flex-wrap justify-content-between">
+                        <form asp-page="/Account/Settings" asp-page-handler="ChangeLanguage" method="post">
+                            <button class="langaugeFlagContainer btn" type="submit" title="Dutch" data-bs-toggle="tooltip">
+                                <img class="langaugeFlag" src=~/images/flags/netherlands.svg/>
+                            </button>
+                            <input name="_language" value="Dutch" type="hidden"/>
+                            <input name="_path" value="@Context.Request.Path" type="hidden"/>
+                        </form>
+                        <form asp-page="/Account/Settings" asp-page-handler="ChangeLanguage" method="post">
+                            <button class="langaugeFlagContainer btn" type="submit" title="English" data-bs-toggle="tooltip">
+                                <img class="langaugeFlag" src=~/images/flags/unitedkingdom.svg/>
+                            </button>
+                            <input name="_language" value="English" type="hidden"/>
+                            <input name="_path" value="@Context.Request.Path" type="hidden"/>
+                        </form>
+                        <form asp-page="/Account/Settings" asp-page-handler="ChangeLanguage" method="post">
+                            <button class="langaugeFlagContainer btn" type="submit" title="Polish" data-bs-toggle="tooltip">
+                                <img class="langaugeFlag" src=~/images/flags/poland.svg/>
+                            </button>
+                            <input name="_language" value="Polish" type="hidden"/>
+                            <input name="_path" value="@Context.Request.Path" type="hidden"/>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/OtherBootstrapStuff.js" asp-append-version="true"></script>
+    
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

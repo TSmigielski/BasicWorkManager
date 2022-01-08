@@ -1,0 +1,12 @@
+﻿@page
+@model BasicWorkManager.Pages.Company.CompanyMessageModel
+@{
+	ViewData["Title"] = $"{Model.Title}";
+}
+
+<div class="container bg-light translate-middle position-absolute top-50 start-50 p-4 rounded shadow-lg"
+style="max-width: 600px">
+	<h2 class="text-center">@Model.Title</h2>
+	<p>@Model.Message</p>
+	<a class="btn btn-primary" asp-page="@Model.ButtonAction">@Model.ButtonText</a>
+</div>

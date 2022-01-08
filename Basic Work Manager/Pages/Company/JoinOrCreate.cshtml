@@ -1,0 +1,65 @@
+﻿@page
+@model BasicWorkManager.Pages.Company.JoinOrCreateModel
+@{
+	ViewData["Title"] = "Join or Create a Company";
+}
+
+<div class="container bg-light p-4 rounded shadow-lg" style="max-width: 600px">
+    <h2 class="text-center mb-4">@Model.localizer.GetString("Title", Model)</h2>
+    <div class="d-flex justify-content-evenly">
+        <button class="btn btn-lg btn-success me-3 disabled" data-bs-target="#joinCompanyModal" data-bs-toggle="modal">@Model.localizer.GetString("JoinCompany", Model)</button>
+        <button class="btn btn-lg btn-danger" data-bs-target="#createCompanyModal" data-bs-toggle="modal">@Model.localizer.GetString("CreateCompany", Model)</button>
+    </div>
+</div>
+
+<div id="joinCompanyModal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Join an existing company</h2>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post">
+                <div class="modal-body">
+                    <label class="form-label">
+                        Enter the exact name of the company you want to join
+                        or the invitation code you have received.
+                        You will not be able to join if you have not been invited.
+                    </label>
+                    <input class="form-control" placeholder="Company name or invitation code" asp-for="CompanyForm.NameOrCode" required>
+                </div>
+                <div class="modal-footer justify-content-evenly ">
+                    <button class="btn btn-primary">Submit</button>
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Back</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="createCompanyModal" class="modal fade" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">@Model.localizer.GetString("CreateCompany", Model)</h3>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post">
+                <div class="modal-body">
+                    <div class="form-floating mb-3">
+                        <input class="form-control" placeholder="@Model.localizer.GetString("CompanyName", Model)" asp-for="CompanyForm.Name" required >
+                        <label>@Model.localizer.GetString("CompanyName", Model)</label>
+                    </div>
+                    <div class="form-floating">
+                        <textarea class="form-control" style="height: 100px" placeholder="@Model.localizer.GetString("CompanyDescription", Model)" asp-for="CompanyForm.Description" required></textarea>
+                        <label>@Model.localizer.GetString("CompanyDescription", Model)</label>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-start">
+                    <button class="btn btn-primary">@Model.localizer.GetString("Create", Model)</button>
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">@Model.localizer.GetString("Back", Model)</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
