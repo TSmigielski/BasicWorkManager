@@ -29,6 +29,13 @@ builder.Services.AddAuthorization(options =>
 		policy => policy.RequireClaim("Company"));
 });
 
+builder.Services.AddHsts(options =>
+{
+	//options.Preload = true;
+	//options.IncludeSubDomains = true;
+	options.MaxAge = TimeSpan.FromHours(3);
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

@@ -22,7 +22,7 @@ public class TasksModel : PageModel
 	public async Task<IActionResult> OnGet()
 	{
 		if (DateString == null)
-			DateString = DateOnly.FromDateTime(DateTime.Now).ToString();
+			DateString = DateOnly.FromDateTime(DateTime.Now).ToString("dd.MM.yyyy");
 
 		await UpdateContent();
 		return Page();
@@ -31,7 +31,7 @@ public class TasksModel : PageModel
 	public async Task<IActionResult> OnPost()
 	{
 		if (DateString == null)
-			DateString = DateOnly.FromDateTime(DateTime.Now).ToString();
+			DateString = DateOnly.FromDateTime(DateTime.Now).ToString("dd.MM.yyyy");
 
 		var db = new DataBaseManager();
 		var user = await Models.User.GetUserByCookie(this, db);
@@ -60,7 +60,7 @@ public class TasksModel : PageModel
 	public async Task<IActionResult> OnPostDateChange(string _dateString, int _days)
 	{
 		if (_dateString == null)
-			_dateString = DateOnly.FromDateTime(DateTime.Now).ToString();
+			_dateString = DateOnly.FromDateTime(DateTime.Now).ToString("dd.MM.yyyy");
 
 		DateString = DateOnly.Parse(_dateString).AddDays(_days).ToString();
 
