@@ -1,5 +1,6 @@
 ﻿using BasicWorkManager.Services;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Globalization;
 using System.Security.Claims;
 
 namespace BasicWorkManager.Models;
@@ -24,40 +25,34 @@ public class User
 	//Custom props
 	public List<TaskData> TaskDataList { get; set; } = new();
 
-	public float SumData(string _taskName, DateOnly _date)
+	public float SumData(string _taskName, DateTime _date)
 	{
 		var specificTasks = TaskDataList.Where(d => d.Date == _date).Where(d => d.Task == _taskName).ToList();
 
-		float sum = 0;
+		float sum = 0f;
+
+		Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
 
 		foreach (var task in specificTasks)
-		{
-			task.Data = task.Data.Replace('.', ',');
 			sum += float.Parse(task.Data);
-		}
 
 		return sum;
 	}
 
-	public float SumData(string _taskName, DateOnly[] _dates)
+	public float SumData(string _taskName, DateTime[] _dates)
 	{
 		var specificTasks = new List<List<TaskData>>();
 
 		for (int i = 0; i < specificTasks.Count; i++)
-		{
 			specificTasks[i] = TaskDataList.Where(d => d.Date == _dates[i]).Where(d => d.Task == _taskName).ToList();
-		}
 
 		float sum = 0;
 
+		Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+
 		foreach (var taskList in specificTasks)
-		{
 			foreach (var task in taskList)
-			{
-				task.Data = task.Data.Replace('.', ',');
 				sum += float.Parse(task.Data);
-			}
-		}
 
 		return sum;
 	}

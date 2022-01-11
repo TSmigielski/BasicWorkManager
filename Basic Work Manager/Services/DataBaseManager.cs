@@ -1,7 +1,6 @@
 ﻿using BasicWorkManager.Models;
 using Dapper;
 using System.Data;
-using System.Globalization;
 
 namespace BasicWorkManager.Services;
 
@@ -13,8 +12,8 @@ public class DataBaseManager
 	{
 		if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
 		{
-			//CurrentDB = "DevDB";
-			CurrentDB = "ProductionDB_Remote";
+			CurrentDB = "DevDB";
+			//CurrentDB = "ProductionDB_Remote";
 		}
 		else
 		{
@@ -193,33 +192,33 @@ public class DataBaseManager
 	/// <summary>
 	///	This method will create a record of the data, or (if it exists) override it
 	/// </summary>
-	public async System.Threading.Tasks.Task InsertTaskData(string _companyName, string _username, string _taskName, DateOnly _date, string _addressString, string _data)
+	public async System.Threading.Tasks.Task InsertTaskData(string _companyName, string _username, string _taskName, DateTime _date, string _addressString, string _data)
 	{
 		using IDbConnection connection = new System.Data.SqlClient.SqlConnection(ConfigurationHelper.GetConnectionString(CurrentDB));
-		await connection.ExecuteAsync("dbo.InsertTaskData @_companyName, @_username, @_taskName, @_dateString, @_addressString, @_data", new 
-		{ _companyName, _username, _taskName, _dateString = _date.ToString(), _addressString, _data });
+		await connection.ExecuteAsync("dbo.InsertTaskData @_companyName, @_username, @_taskName, @_date, @_addressString, @_data", new 
+		{ _companyName, _username, _taskName, _date, _addressString, _data });
 	}
 
-	public async System.Threading.Tasks.Task DeleteTaskData(string _companyName, string _username, string _taskName, DateOnly _date, string _addressString)
+	public async System.Threading.Tasks.Task DeleteTaskData(string _companyName, string _username, string _taskName, DateTime _date, string _addressString)
 	{
 		using IDbConnection connection = new System.Data.SqlClient.SqlConnection(ConfigurationHelper.GetConnectionString(CurrentDB));
-		await connection.ExecuteAsync("dbo.DeleteTaskData @_companyName, @_username, @_taskName, @_dateString, @_addressString", new
-		{ _companyName, _username, _taskName, _dateString = _date.ToString(), _addressString });
+		await connection.ExecuteAsync("dbo.DeleteTaskData @_companyName, @_username, @_taskName, @_date, @_addressString", new
+		{ _companyName, _username, _taskName, _date, _addressString });
 	}
 
-	public async Task<List<TaskData>?> GetTaskData(string _companyName, string _username, string _taskName, DateOnly _date, string _addressString)
-	{
-		using IDbConnection connection = new System.Data.SqlClient.SqlConnection(ConfigurationHelper.GetConnectionString(CurrentDB));
-		var output = await connection.QueryAsync<TaskData>("dbo.FindTaskData @_companyName, @_username, @_taskName, @_dateString, @_addressString", new
-		{ _companyName, _username, _taskName, _dateString = _date.ToString(), _addressString });
-		return output.ToList();
-	}
+	//public async Task<List<TaskData>?> GetTaskData(string _companyName, string _username, string _taskName, DateOnly _date, string _addressString)
+	//{
+	//	using IDbConnection connection = new System.Data.SqlClient.SqlConnection(ConfigurationHelper.GetConnectionString(CurrentDB));
+	//	var output = await connection.QueryAsync<TaskData>("dbo.FindTaskData @_companyName, @_username, @_taskName, @_dateString, @_addressString", new
+	//	{ _companyName, _username, _taskName, _dateString = _date.ToString(), _addressString });
+	//	return output.ToList();
+	//}
 
-	public async Task<List<TaskData>?> GetTaskData(string _companyName, string _username, DateOnly _date)
+	public async Task<List<TaskData>?> GetTaskData(string _companyName, string _username, DateTime _date)
 	{
 		using IDbConnection connection = new System.Data.SqlClient.SqlConnection(ConfigurationHelper.GetConnectionString(CurrentDB));
-		var output = await connection.QueryAsync<TaskData>("dbo.FindTaskData @_companyName, @_username, @_taskName, @_dateString, @_addressString", new
-		{ _companyName, _username, _taskName = (string)null, _dateString = _date.ToString(), _addressString = (string)null });
+		var output = await connection.QueryAsync<TaskData>("dbo.FindTaskData @_companyName, @_username, @_taskName, @_date, @_addressString", new
+		{ _companyName, _username, _taskName = (string)null, _date = _date, _addressString = (string)null });
 		return output.ToList();
 	}
 }

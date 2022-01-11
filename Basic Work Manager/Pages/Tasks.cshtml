@@ -15,7 +15,7 @@
 			<input type="hidden" name="_dateString" value='@HttpContext.Request.Query["date"]' />
 			<input type="hidden" name="_days" value="-7" />
 		</form>
-		<h5 class="mx-1 my-auto text-center">@Model.localizer.GetString("Week", Model): @ISOWeek.GetWeekOfYear(DateTime.Parse(Model.DateString))</h5>
+		<h5 class="mx-1 my-auto text-center">@Model.localizer.GetString("Week", Model): @ISOWeek.GetWeekOfYear(DateStuff.ParseDateString(Model.DateString).ToDateTime(TimeOnly.MinValue))</h5>
 		<form method="post" asp-page-handler="DateChange">
 			<button class="bg-transparent border-0 m-0 px-0 pt-1" type="submit"><i class="bi bi-caret-right-square"></i></button>
 			<input type="hidden" name="_dateString" value='@HttpContext.Request.Query["date"]' />
@@ -33,18 +33,18 @@
 			<input type="hidden" name="_dateString" value='@HttpContext.Request.Query["date"]' />
 			<input type="hidden" name="_days" value="-1" />
 		</form>
-			<h5 class="mx-1 my-auto text-center">@CalendarModel.GetDayOfWeekName(DateOnly.Parse(Model.DateString), Model)</h5>
+			<h5 class="mx-1 my-auto text-center">@DateStuff.GetDayOfWeekName(Model.DateString, Model)</h5>
 			<h5 class="mx-1 my-auto text-center">-</h5>
-			<h5 class="mx-1 my-auto text-center">@DateOnly.Parse(Model.DateString)</h5>
+			<h5 class="mx-1 my-auto text-center">@DateStuff.GetDateString(Model.DateString, true)</h5>
 		<form method="post" asp-page-handler="DateChange">
 			<button class="bg-transparent border-0 m-0 px-0 pt-1" type="submit"><i class="bi bi-caret-right-square"></i></button>
 			<input type="hidden" name="_dateString" value='@HttpContext.Request.Query["date"]' />
 			<input type="hidden" name="_days" value="1" />
 		</form>
 
-		@if (DateOnly.Parse(Model.DateString) != DateOnly.FromDateTime(DateTime.Now))
+		@if (DateTime.Parse(Model.DateString).Date != DateTime.Now.Date)
 		{
-			<a class="btn btn-link btn-sm" asp-page="/Tasks" asp-route-date="@DateOnly.FromDateTime(DateTime.Now).ToString()">@Model.localizer.GetString("Go2Today", Model)</a>
+			<a class="btn btn-link btn-sm" asp-page="/Tasks" asp-route-date="@DateStuff.GetDateString()">@Model.localizer.GetString("Go2Today", Model)</a>
 		}
 	</div>
 
@@ -74,17 +74,17 @@
 						@foreach(var task in Model.Company.Tasks)
 						{
 							<td> @* todo - put the asp-for value into some class *@
-								@if (Model.MyUser.TaskDataList.FirstOrDefault(d => d.Date == DateOnly.Parse(Model.DateString) && d.Task == task.Name && d.Address.WriteFullAddress() == address.WriteFullAddress()) != null)
+								@if (Model.MyUser.TaskDataList.FirstOrDefault(d => d.Date == DateTime.Parse(Model.DateString) && d.Task == task.Name && d.Address.WriteFullAddress() == address.WriteFullAddress()) != null)
 								{
 									<input 
-										asp-for='Data[$"{DateOnly.Parse(Model.DateString)}/{address.WriteFullAddress()}/{task.Name}"]'
-										value="@Model.MyUser.TaskDataList.FirstOrDefault(d => d.Date == DateOnly.Parse(Model.DateString) && d.Task == task.Name && d.Address.WriteFullAddress() == address.WriteFullAddress()).Data"
+										asp-for='Data[$"{Model.DateString}/{address.WriteFullAddress()}/{task.Name}"]'
+										value="@Model.MyUser.TaskDataList.FirstOrDefault(d => d.Date == DateTime.Parse(Model.DateString) && d.Task == task.Name && d.Address.WriteFullAddress() == address.WriteFullAddress()).Data"
 										type="@task.ValueType" step=".5"
 									/>
 								}
 								else
 								{
-									<input asp-for='Data[$"{DateOnly.Parse(Model.DateString)}/{address.WriteFullAddress()}/{task.Name}"]' type="@task.ValueType" step=".5" />
+									<input asp-for='Data[$"{Model.DateString}/{address.WriteFullAddress()}/{task.Name}"]' type="@task.ValueType" step=".5" />
 								}
 							</td>
 						}
@@ -98,7 +98,7 @@
 					{
 						switch (task.ValueType)
 						{
-							case BasicWorkManager.Models.ValueType.Number: <td>@Model.MyUser.SumData(task.Name, DateOnly.Parse(Model.DateString))</td> break;
+							case BasicWorkManager.Models.ValueType.Number: <td>@Model.MyUser.SumData(task.Name, DateTime.Parse(Model.DateString))</td> break;
 							case BasicWorkManager.Models.ValueType.Text: <td>-</td> break;
 						}
 					}

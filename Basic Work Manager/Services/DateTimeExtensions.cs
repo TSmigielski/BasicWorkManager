@@ -5,7 +5,7 @@ public static class DateTimeExtensions
 {
 	public static DateTime FirstDayOfWeek(this DateTime dt)
 	{
-		var culture = Thread.CurrentThread.CurrentCulture;
+		CultureInfo culture = CultureInfo.InvariantCulture;
 		var diff = dt.DayOfWeek - culture.DateTimeFormat.FirstDayOfWeek;
 
 		if (diff < 0)
@@ -22,6 +22,9 @@ public static class DateTimeExtensions
 	public static DateTime FirstDayOfMonth(this DateTime dt) =>
 		new(dt.Year, dt.Month, 1);
 
+	public static DateOnly FirstDayOfMonth(this DateOnly dt) =>
+		new(dt.Year, dt.Month, 1);
+
 	public static DateTime LastDayOfMonth(this DateTime dt) =>
 		dt.FirstDayOfMonth().AddMonths(1).AddDays(-1);
 
@@ -29,6 +32,9 @@ public static class DateTimeExtensions
 		dt.FirstDayOfMonth().AddMonths(1);
 
 	public static DateTime FirstDayOfAdjacentMonth(this DateTime dt, int months) =>
+		dt.FirstDayOfMonth().AddMonths(months);
+
+	public static DateOnly FirstDayOfAdjacentMonth(this DateOnly dt, int months) =>
 		dt.FirstDayOfMonth().AddMonths(months);
 
 	public static DateTime FirstDayOfWeek(int year, int weekOfYear)
@@ -39,7 +45,7 @@ public static class DateTimeExtensions
 		// Use first Thursday in January to get first week of the year as
 		// it will never be in Week 52/53
 		DateTime firstThursday = jan1.AddDays(daysOffset);
-		var cal = CultureInfo.CurrentCulture.Calendar;
+		var cal = CultureInfo.InvariantCulture.Calendar;
 		int firstWeek = cal.GetWeekOfYear(firstThursday, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
 
 		var weekNum = weekOfYear;

@@ -1,10 +1,8 @@
-using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using BasicWorkManager.Models;
 using BasicWorkManager.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -68,7 +66,7 @@ public class EmployeesModel : PageModel
 		return y;
 	}
 
-	public async Task<List<Address>> GetUsedAddresses(User _user, DateOnly _date)
+	public async Task<List<Address>> GetUsedAddresses(User _user, DateTime _date)
 	{
 		var db = new DataBaseManager();
 		var tasks = await db.GetTaskData(_user.Company, _user.Username, _date);
@@ -76,7 +74,7 @@ public class EmployeesModel : PageModel
 		List<Address> addresses = new();
 		foreach (var task in tasks)
 		{
-			task.ParseProperties();
+			task.ParseAddress();
 
 			if (!addresses.Any(a => a.WriteFullAddress() == task.Address.WriteFullAddress()))
 				addresses.Add(task.Address);
@@ -104,11 +102,11 @@ public class EmployeesModel : PageModel
 		{
 			for (DateTime date = DateTimeExtensions.FirstDayOfWeek((int)Year, (int)Week); date <= DateTimeExtensions.LastDayOfWeek((int)Year, (int)Week); date = date.AddDays(1))
 			{
-				user.TaskDataList.AddRange(await db.GetTaskData(user.Company, user.Username, DateOnly.FromDateTime(date)));
+				user.TaskDataList.AddRange(await db.GetTaskData(user.Company, user.Username, date));
 			}
 			foreach (var data in user.TaskDataList)
 			{
-				data.ParseProperties();
+				data.ParseAddress();
 			}
 		}
 	}

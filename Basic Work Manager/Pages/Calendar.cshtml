@@ -22,15 +22,15 @@
 			<input type="hidden" name="_months" value="1" />
 		</form>
 
-		@if(DateOnly.Parse(Model.DateString).Month != DateTime.Now.Month)
+		@if(DateStuff.ParseDateString(Model.DateString).Month != DateTime.Now.Month)
 		{
-			<a class="btn btn-link btn-sm" asp-page="/Calendar" asp-route-date="@DateOnly.FromDateTime(DateTime.Now).ToString()">@Model.localizer.GetString("CurrentMonth", Model)</a>
+			<a class="btn btn-link btn-sm" asp-page="/Calendar" asp-route-date="@DateStuff.GetDateString()">@Model.localizer.GetString("CurrentMonth", Model)</a>
 		}
 
 		<h5 class="ms-auto my-auto text-center">
-			@(DateOnly.Parse(Model.DateString).Month.ToString().Length < 2 ? "0" + DateOnly.Parse(Model.DateString).Month.ToString() : DateOnly.Parse(Model.DateString).Month)
+			@(DateStuff.ParseDateString(Model.DateString).Month.ToString().Length < 2 ? "0" + DateStuff.ParseDateString(Model.DateString).Month.ToString() : DateStuff.ParseDateString(Model.DateString).Month)
 			/
-			@DateOnly.Parse(Model.DateString).Year
+			@DateStuff.ParseDateString(Model.DateString).Year
 		</h5>
 	</div>
 	
@@ -53,10 +53,10 @@
 			{
 				<tr>
 					<th scope="row">
-						@(week == 0 ? ISOWeek.GetWeekOfYear(DateTimeExtensions.FirstDayOfMonth(DateTime.Parse(@Model.DateString))) : week)
+						@(week == 0 ? ISOWeek.GetWeekOfYear(DateTimeExtensions.FirstDayOfMonth(DateStuff.ParseDateString(Model.DateString).ToDateTime(TimeOnly.MinValue))) : week)
 						@*<a class="btn btn-primary p-0 px-2" style=" max-width: 100px" asp-page="/Company/Employees" asp-route-week="@week" asp-route-year="@DateTime.Parse(Model.DateString).Year">View Employees</a>*@
 					</th>
-					@for (DateTime date = DateTimeExtensions.FirstDayOfWeek(DateTime.Parse(Model.DateString).Year, week); date <= DateTimeExtensions.FirstDayOfWeek(DateTime.Parse(Model.DateString).Year, week).AddDays(6); date = date.AddDays(1))
+					@for (DateTime date = DateTimeExtensions.FirstDayOfWeek(DateStuff.ParseDateString(Model.DateString).Year, week); date <= DateTimeExtensions.FirstDayOfWeek(DateStuff.ParseDateString(Model.DateString).Year, week).AddDays(6); date = date.AddDays(1))
 					{
 						@if (date.Month == DateTime.Parse(Model.DateString).Month)
 						{
@@ -64,13 +64,13 @@
 								<div class="mx-1 mb-1">
 									<div class="row mb-1">
 										<div class="col">@date.Day</div>
-										@if (await Model.CheckDate(DateOnly.FromDateTime(date)))
+										@if (await Model.CheckDate(date))
 										{
 											<div class="col text-end text-success"><i class="bi bi-check-circle-fill"></i></div>
 										}
 									</div>
 									<div class="text-center">
-										<a class="btn btn-primary p-0 px-2" style=" max-width: 100px" asp-page="/Tasks" asp-route-date="@DateOnly.FromDateTime(date)">@Model.localizer.GetString("ViewTasks", Model)</a>
+										<a class="btn btn-primary p-0 px-2" style=" max-width: 100px" asp-page="/Tasks" asp-route-date="@DateStuff.GetDateString(date)">@Model.localizer.GetString("ViewTasks", Model)</a>
 									</div>
 								</div>
 							</td>
@@ -81,7 +81,7 @@
 								<div class="mx-1 mb-1">
 									<div class="row mb-1">
 										<div class="col">@date.Day</div>
-										@if (await Model.CheckDate(DateOnly.FromDateTime(date)))
+										@if (await Model.CheckDate(date))
 										{
 											<div class="col text-end text-success"><i class="bi bi-check-circle-fill"></i></div>
 										}

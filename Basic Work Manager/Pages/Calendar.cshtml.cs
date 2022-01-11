@@ -14,7 +14,7 @@ public class CalendarModel : PageModel
 	public int Week { get; set; }
 
 	[BindProperty]
-	public List<DateOnly> DatesWithTaskDone { get; set; } = new();
+	public List<DateTime> DatesWithTaskDone { get; set; } = new();
 
 	public CalendarTranslations localizer;
 
@@ -23,7 +23,7 @@ public class CalendarModel : PageModel
 		localizer = new();
 
 		if (DateString == null)
-			DateString = DateOnly.FromDateTime(DateTime.Now).ToString();
+			DateString = DateStuff.GetDateString();
 
 		return Page();
 	}
@@ -31,14 +31,14 @@ public class CalendarModel : PageModel
 	public IActionResult OnPost(string _dateString, int _months)
 	{
 		if (_dateString == null)
-			_dateString = DateOnly.FromDateTime(DateTime.Now).ToString();
+			_dateString = DateStuff.GetDateString();
 
-		DateString = DateOnly.FromDateTime(DateTimeExtensions.FirstDayOfAdjacentMonth(DateTime.Parse(_dateString), _months)).ToString();
+		DateString = DateStuff.GetDateString(DateTimeExtensions.FirstDayOfAdjacentMonth(DateStuff.ParseDateString(_dateString), _months));
 
 		return RedirectToPage("/Calendar", new { date = DateString });
 	}
 
-	public async Task<bool> CheckDate(DateOnly _date)
+	public async Task<bool> CheckDate(DateTime _date)
 	{
 		DataBaseManager db = new();
 		var user = await Models.User.GetUserByCookie(this, db);
@@ -55,7 +55,7 @@ public class CalendarModel : PageModel
 			_ => "en"
 		};
 
-		var month = new CultureInfo(culture).DateTimeFormat.GetMonthName(DateOnly.Parse(DateString).Month);
+		var month = new CultureInfo(culture).DateTimeFormat.GetMonthName(DateTime.Parse(DateString).Month);
 		return char.ToUpper(month[0]) + month.Substring(1);
 	}
 
@@ -77,32 +77,6 @@ public class CalendarModel : PageModel
 			week = 53;
 
 		return week;
-	}
-
-	public static string GetDayOfWeekName(DateTime _date, PageModel _page)
-	{
-		var culture = _page.Request.Cookies["lang"] switch
-		{
-			"Dutch" => "nl",
-			"Polish" => "pl",
-			_ => "en"
-		};
-
-		var day = new CultureInfo(culture).DateTimeFormat.GetDayName(_date.DayOfWeek);
-		return char.ToUpper(day[0]) + day.Substring(1);
-	}
-
-	public static string GetDayOfWeekName(DateOnly _date, PageModel _page)
-	{
-		var culture = _page.Request.Cookies["lang"] switch
-		{
-			"Dutch" => "nl",
-			"Polish" => "pl",
-			_ => "en"
-		};
-
-		var day = new CultureInfo(culture).DateTimeFormat.GetDayName(_date.DayOfWeek);
-		return char.ToUpper(day[0]) + day.Substring(1);
 	}
 }
 

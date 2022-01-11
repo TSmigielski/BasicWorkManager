@@ -22,7 +22,7 @@ public class TasksModel : PageModel
 	public async Task<IActionResult> OnGet()
 	{
 		if (DateString == null)
-			DateString = DateOnly.FromDateTime(DateTime.Now).ToString("dd.MM.yyyy");
+			DateString = DateStuff.GetDateString();
 
 		await UpdateContent();
 		return Page();
@@ -31,7 +31,7 @@ public class TasksModel : PageModel
 	public async Task<IActionResult> OnPost()
 	{
 		if (DateString == null)
-			DateString = DateOnly.FromDateTime(DateTime.Now).ToString("dd.MM.yyyy");
+			DateString = DateStuff.GetDateString();
 
 		var db = new DataBaseManager();
 		var user = await Models.User.GetUserByCookie(this, db);
@@ -40,15 +40,15 @@ public class TasksModel : PageModel
 
 		foreach (var d in Data)
 		{
-			var keys = d.Key.Split('/');
+			var keys = d.Key.Split('/'); // 0 = date; 1 = address; 2 = taskName
 
 			if (d.Value == null)
 			{
-				tasks.Add(db.DeleteTaskData(user.Company, user.Username, keys[2], DateOnly.Parse(keys[0]), keys[1]));
+				tasks.Add(db.DeleteTaskData(user.Company, user.Username, keys[2], DateTime.Parse(keys[0]), keys[1]));
 				continue;
 			}
 
-			tasks.Add(db.InsertTaskData(user.Company, user.Username, keys[2], DateOnly.Parse(keys[0]), keys[1], d.Value));
+			tasks.Add(db.InsertTaskData(user.Company, user.Username, keys[2], DateTime.Parse(keys[0]), keys[1], d.Value));
 		}
 
 		await System.Threading.Tasks.Task.WhenAll(tasks);
@@ -60,9 +60,9 @@ public class TasksModel : PageModel
 	public async Task<IActionResult> OnPostDateChange(string _dateString, int _days)
 	{
 		if (_dateString == null)
-			_dateString = DateOnly.FromDateTime(DateTime.Now).ToString("dd.MM.yyyy");
+			_dateString = DateStuff.GetDateString();
 
-		DateString = DateOnly.Parse(_dateString).AddDays(_days).ToString();
+		DateString = DateStuff.GetDateString(DateStuff.ParseDateString(_dateString).AddDays(_days));
 
 		await UpdateContent();
 		return RedirectToPage("/Tasks", new { date = DateString });
@@ -76,14 +76,14 @@ public class TasksModel : PageModel
 		MyUser = await Models.User.GetUserByCookie(this, db);
 		Company = await Models.Company.GetCompanyByCookie(this, db);
 
-		MyUser.TaskDataList = await db.GetTaskData(MyUser.Company, MyUser.Username, DateOnly.Parse(DateString));
+		MyUser.TaskDataList = await db.GetTaskData(MyUser.Company, MyUser.Username, DateStuff.ParseDateString(DateString).ToDateTime(TimeOnly.MinValue));
 
 		for (int i = MyUser.TaskDataList.Count - 1; i >= 0; i--)
 		{
 			if (MyUser.TaskDataList[i].Data == null)
 				MyUser.TaskDataList.RemoveAt(i);
 
-			MyUser.TaskDataList[i].ParseProperties();
+			MyUser.TaskDataList[i].ParseAddress();
 		}
 
 		Company.Addresses = await db.GetAddresses(Company.Name);
@@ -100,14 +100,14 @@ public class TasksModel : PageModel
 		MyUser = await Models.User.GetUserByCookie(this, _db);
 		Company = await Models.Company.GetCompanyByCookie(this, _db);
 
-		MyUser.TaskDataList = await _db.GetTaskData(MyUser.Company, MyUser.Username, DateOnly.Parse(DateString));
+		MyUser.TaskDataList = await _db.GetTaskData(MyUser.Company, MyUser.Username, DateStuff.ParseDateString(DateString).ToDateTime(TimeOnly.MinValue));
 
 		for (int i = MyUser.TaskDataList.Count - 1; i >= 0; i--)
 		{
 			if (MyUser.TaskDataList[i].Data == null)
 				MyUser.TaskDataList.RemoveAt(i);
 
-			MyUser.TaskDataList[i].ParseProperties();
+			MyUser.TaskDataList[i].ParseAddress();
 		}
 
 		Company.Addresses = await _db.GetAddresses(Company.Name);
@@ -123,8 +123,8 @@ public class TasksModel : PageModel
 		{
 			foreach (var task in Company.Tasks)
 			{
-				if (!Data.ContainsKey($"{DateOnly.Parse(DateString)}/{address.WriteFullAddress()}/{task.Name}"))
-					Data.Add($"{DateOnly.Parse(DateString)}/{address.WriteFullAddress()}/{task.Name}", "");
+				if (!Data.ContainsKey($"{DateString}/{address.WriteFullAddress()}/{task.Name}"))
+					Data.Add($"{DateString}/{address.WriteFullAddress()}/{task.Name}", "");
 			}
 		}
 	}

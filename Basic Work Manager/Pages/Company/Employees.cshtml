@@ -24,7 +24,7 @@
 			<input type="hidden" name="_weeksToAdd" value="1" />
 		</form>
 
-		@if (Model.Year != DateTime.Now.Year || Model.Week != DateTime.Now.Month)
+		@if (Model.Year != DateTime.Now.Year || Model.Week != ISOWeek.GetWeekOfYear(DateTime.Now))
 		{
 			<a class="btn btn-link btn-sm" asp-page="/Company/Employees" asp-route-week="@ISOWeek.GetWeekOfYear(DateTime.Now)" asp-route-year="@DateTime.Now.Year">Go to today's week</a>
 		}
@@ -64,15 +64,15 @@
 							<tbody>
 								@for (DateTime date = DateTimeExtensions.FirstDayOfWeek((int)Model.Year, (int)Model.Week); date <= DateTimeExtensions.LastDayOfWeek((int)Model.Year, (int)Model.Week); date = date.AddDays(1))
 								{
-									foreach (var address in (await Model.GetUsedAddresses(user, DateOnly.FromDateTime(date))))
+									foreach (var address in (await Model.GetUsedAddresses(user, date)))
 									{
-										if (user.TaskDataList.Any(d => BasicWorkManager.Models.Address.CompareAddresses(d.Address, address) && d.Date == DateOnly.FromDateTime(date)))
+										if (user.TaskDataList.Any(d => BasicWorkManager.Models.Address.CompareAddresses(d.Address, address) && d.Date == date))
 										{
 											<tr>
 												@if (!Model.DatesInWeek.Contains(date))
 												{
 													Model.DatesInWeek.Add(date);
-													<th scope="row">@($"{CalendarModel.GetDayOfWeekName(date, Model)} - {DateOnly.FromDateTime(date)}")</th>
+													<th scope="row">@($"{DateStuff.GetDayOfWeekName(date, Model)} - {DateStuff.GetDateString(date, true)}")</th>
 												}
 												else
 												{
@@ -82,9 +82,9 @@
 												@foreach (var task in Model.Company.Tasks)
 												{
 													<td>
-														@if (user.TaskDataList.FirstOrDefault(d => d.Task == task.Name && BasicWorkManager.Models.Address.CompareAddresses(d.Address, address) && d.Date == DateOnly.FromDateTime(date)) != null)
+														@if (user.TaskDataList.FirstOrDefault(d => d.Task == task.Name && BasicWorkManager.Models.Address.CompareAddresses(d.Address, address) && d.Date == date) != null)
 														{
-															<text>@user.TaskDataList.FirstOrDefault(d => d.Task == task.Name && BasicWorkManager.Models.Address.CompareAddresses(d.Address, address) && d.Date == DateOnly.FromDateTime(date)).Data</text>
+															<text>@user.TaskDataList.FirstOrDefault(d => d.Task == task.Name && BasicWorkManager.Models.Address.CompareAddresses(d.Address, address) && d.Date == date).Data</text>
 														}
 													</td>
 												}
@@ -92,14 +92,14 @@
 										}
 									}
 									<tr style="border-color: #212529">
-										<th scope="row">@(!Model.DatesInWeek.Contains(date) ? $"{CalendarModel.GetDayOfWeekName(date, Model)} - {DateOnly.FromDateTime(date)}" : "")</th>
+										<th scope="row">@(!Model.DatesInWeek.Contains(date) ? $"{DateStuff.GetDayOfWeekName(date, Model)} - {DateStuff.GetDateString(date, true)}" : "")</th>
 										<th class="text-end">@Model.localizer.GetString("SubTotal", Model):</th>
 										@foreach (var task in Model.Company.Tasks)
 										{
 											if (task.ValueType == Models.ValueType.Number)
 											{
 												<td>
-													<b>@user.SumData(task.Name, DateOnly.FromDateTime(date))</b>
+													<b>@user.SumData(task.Name, date)</b>
 												</td>
 											}
 											else
@@ -120,7 +120,7 @@
 										{
 											for(DateTime date = DateTimeExtensions.FirstDayOfWeek((int)Model.Year, (int)Model.Week); date <= DateTimeExtensions.LastDayOfWeek((int)Model.Year, (int)Model.Week); date = date.AddDays(1))
 											{
-												Model.Total += user.SumData(task.Name, DateOnly.FromDateTime(date));
+												Model.Total += user.SumData(task.Name, date);
 											}
 											<td>
 												<b>@Model.Total</b>
