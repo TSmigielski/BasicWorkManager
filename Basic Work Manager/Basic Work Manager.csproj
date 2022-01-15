@@ -5,6 +5,7 @@
     <!--<Nullable>enable</Nullable>-->
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>BasicWorkManager</RootNamespace>
+    <UserSecretsId>0a6a70ef-2b52-4cf8-92af-762c26231cdc</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

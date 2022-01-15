@@ -31,9 +31,6 @@ public class PasswordResetModel : PageModel // todo - Add the check for first/la
 
 	public async Task<IActionResult> OnGet()
 	{
-		localizer = new();
-		return Page();
-
 		if (TokenID == null || Key == null || IV == null)
 			return RedirectToPage("/Index");
 

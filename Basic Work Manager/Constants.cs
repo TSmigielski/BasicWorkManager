@@ -10,5 +10,5 @@ public static class Constants
 	public const bool PassSpecReq = true;
 
 	//Other
-	public const string DateFormat = "dd.MM.yyyy";
+	public const string DateFormat = "dd.MM.yyyy";	
 }

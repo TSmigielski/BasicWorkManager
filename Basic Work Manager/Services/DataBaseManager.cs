@@ -12,13 +12,18 @@ public class DataBaseManager
 	{
 		if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
 		{
-			CurrentDB = "DevDB";
-			//CurrentDB = "ProductionDB_Remote";
+			//CurrentDB = "DevDB";
+			CurrentDB = "ProductionDB_Remote";
 		}
 		else
 		{
 			CurrentDB = "ProductionDB";
 		}
+	}
+
+	public DataBaseManager(string _currentDB)
+	{
+		CurrentDB = _currentDB;
 	}
 
     public async Task<User?> GetUser(string _usernameOrEmail)
@@ -45,14 +50,15 @@ public class DataBaseManager
     public async System.Threading.Tasks.Task CreateUser(User _user)
     {
         using IDbConnection connection = new System.Data.SqlClient.SqlConnection(ConfigurationHelper.GetConnectionString(CurrentDB));
-        await connection.ExecuteAsync("dbo.CreateUser @_firstName, @_lastName, @_emailAddress, @_userName, @_hash", new
+        await connection.ExecuteAsync("dbo.CreateUser @_firstName, @_lastName, @_emailAddress, @_userName, @_hash, @_accountCreationDate", new
         {
             _firstName = _user.FirstName,
             _lastName = _user.LastName,
             _emailAddress = _user.EmailAddress,
             _userName = _user.Username,
-            _hash = _user.Hash
-        });
+            _hash = _user.Hash,
+			_accountCreationDate = DateTime.Now
+		});
     }
 
     public async System.Threading.Tasks.Task CreateToken(int _id, string _value)
@@ -145,7 +151,7 @@ public class DataBaseManager
 	{
 		using IDbConnection connection = new System.Data.SqlClient.SqlConnection(ConfigurationHelper.GetConnectionString(CurrentDB));
 		await connection.ExecuteAsync("dbo.CreateAddress @_company, @_country, @_city, @_street, @_houseNumber, @_postalCode", new
-		{ _companyName, _country, _city, _street, _houseNumber, _postalCode });
+		{ _company = _companyName, _country, _city, _street, _houseNumber, _postalCode });
 	}
 
 	public async Task<List<Address>?> GetAddresses(string _companyName)

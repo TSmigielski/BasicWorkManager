@@ -41,9 +41,9 @@ public class PasswordResetModel : PageModel
         }
 
 		await TokenHandler.GenerateToken(user, TokenType.PasswordReset);
-		await db.ChangeLockStatus(user.Username, 1);
+		//await db.ChangeLockStatus(user.Username, 1);
 
-        return RedirectToPage($"/Account/Message", new {msgId = 2, email = user.EmailAddress });
+		return RedirectToPage($"/Account/Message", new {msgId = 2, email = user.EmailAddress });
     }
 }
 
